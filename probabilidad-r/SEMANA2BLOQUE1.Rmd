@@ -1,0 +1,227 @@
+---
+title: "Laboratorio 1 Bloque 2"
+author: "Sergio Tomas Rincon Jaimes"
+date: "2025-07-22"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+## Profesor Tallerista: Luz Estella Mesa
+ 
+```{r}
+datos <- read.csv("C:/Users/Nitro V15/Documents/R/global_renewable_energy_production.csv", header=TRUE , sep= ",")
+datos
+```
+
+## Problema 1
+#### A partir del histograma de frecuencias absolutas, Identificar el intervalo de clases en la cual se encuentra el promedio o media aritmetica para la variable produccion anual de energia solar, SolarEnergy.
+
+```{r histograma_solar_con_intervalos, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+library(ggplot2)
+
+# Cargar datos
+datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+solar <- datos$SolarEnergy
+
+# Definir número de clases y cortes
+bins  <- 10
+breaks <- seq(min(solar, na.rm = TRUE),
+              max(solar, na.rm = TRUE),
+              length.out = bins + 1)
+
+# Crear y mostrar vector de intervalos
+intervalos <- paste0("[", round(head(breaks, -1), 2), ", ", round(tail(breaks, -1), 2), ")")
+cat("Intervalos de clase:\n")
+print(intervalos)
+
+# Calcular media
+media_solar <- mean(solar, na.rm = TRUE)
+
+# Graficar histograma con cortes definidos y línea de la media
+ggplot(datos, aes(x = SolarEnergy)) +
+  geom_histogram(stat = "bin", breaks = breaks, color = "black", fill = "gray") +
+  geom_vline(xintercept = media_solar,
+             linetype    = "dashed",
+             linewidth   = 1,       # ← sustituye size por linewidth
+             color       = "blue") +
+  annotate("text", x = media_solar, y = Inf, label = "Media",
+           angle = 90, vjust = -0.5, hjust = 1.2, size = 5) +
+  theme_bw() +
+  labs(title = "Histograma de SolarEnergy con intervalos de clase",
+       x     = "Producción anual de energía solar",
+       y     = "Frecuencia")
+
+
+```
+
+## Problema 2
+#### Determine los valores del promedio y de la mediana para las variables de naturaleza cuantitativa: SolarEnergy, WindEnergy, HydroEnergy. ¿Que puede concluir acerca de la distribucion, basandose en los valores reportados del promedio y la mediana?
+
+```{r resumen_estadisticos, echo=FALSE}
+# Carga de datos
+datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+
+# Selección de variables cuantitativas
+vars <- datos[, c("SolarEnergy", "WindEnergy", "HydroEnergy")]
+
+# Cálculo de media y mediana
+resumen <- data.frame(
+  Variable = names(vars),
+  Media    = sapply(vars, mean,  na.rm = TRUE),
+  Mediana  = sapply(vars, median, na.rm = TRUE)
+)
+
+print(resumen)
+```
+**Conclusiones:
+SolarEnergy: si la media es mayor que la mediana, indica una distribución sesgada a la derecha (colas largas hacia valores altos).
+
+WindEnergy: si la media y la mediana son muy cercanas, sugiere una distribución más simétrica.
+
+HydroEnergy: si la media es menor que la mediana, señala una distribución sesgada a la izquierda (colas largas hacia valores bajos).**
+
+## Problema 3
+#### Determinar el intervalo a dos desviaciones estandar del promedio para la variable asociada a la produccion anual de energıa eolica, WindEnergy para el periodo de tiempo del 2011 a 2023 en todos los paises. Interpretar
+
+```{r intervalo_wind_descriptivo, echo=FALSE}
+# Cargar datos y filtrar periodo 2011–2023
+datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+datos_wind <- subset(datos, Year >= 2011 & Year <= 2023)
+wind <- datos_wind$WindEnergy
+
+# Cálculo de estadísticos
+media_wind <- mean(wind, na.rm = TRUE)
+sd_wind    <- sd(wind,   na.rm = TRUE)
+lim_inf    <- media_wind - 2 * sd_wind
+lim_sup    <- media_wind + 2 * sd_wind
+
+# Proporción de datos dentro del intervalo
+p_within <- mean(wind >= lim_inf & wind <= lim_sup, na.rm = TRUE) * 100
+
+# Salida descriptiva con comparaciones
+cat("Media WindEnergy (2011–2023):", round(media_wind, 2), "\n")
+cat("Desviación estándar:     ", round(sd_wind,    2), "\n")
+cat("Intervalo ±2σ:           [", round(lim_inf, 2), ", ", round(lim_sup, 2), "]\n\n")
+
+cat(sprintf("• %.1f%% de los valores se ubican dentro de ±2σ", p_within), "\n")
+cat("  (vs. ~95% esperado bajo normalidad)\n")
+
+
+
+```
+**Media ≈ 854.5 y σ ≈ 373.3 ⇒ ±2σ ≈ [108, 1 601]
+
+100 % de los datos dentro de ±2σ ⇒ no hay valores atípicos fuera de ese rango
+
+Más concentración que en una normal clásica (100 % vs. ~95 %) ⇒ colas ligeras
+
+Variabilidad moderada (σ ≈ 44 % de la media) ⇒ dispersión controlada entre países**
+
+## Problema 4
+####  El coeficiente de variacion definido como la relacion entre la desviacion estandar y el promedio, cuantifica la desviacion estandar como porcentaje de la media. Determinar el valor asociado al coeficiente de variacion para todas las variables de produccion de energıa: SolarEnergy, WindEnergy, HydroEnergy, OtherRenewableEnergy. ¿Que puede concluir? Explique.
+
+
+```{r coef_variacion, echo=FALSE}
+# Carga de datos
+datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+
+# Selección de variables
+vars <- datos[, c("SolarEnergy", "WindEnergy", "HydroEnergy", "OtherRenewableEnergy")]
+
+# Cálculo del coeficiente de variación (en %)
+cv <- sapply(vars, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE) * 100)
+
+# Mostrar resultados
+data.frame(
+  Variable = names(cv),
+  CoeficienteVariacion = round(cv, 2)
+)
+
+
+```
+**Conclusiones
+
+SolarEnergy presenta el mayor coeficiente (≈ 51 %), lo que indica que su producción anual muestra la mayor dispersión relativa respecto a su promedio.
+
+WindEnergy tiene el coeficiente más bajo (≈ 44 %), señalando una variabilidad relativa más controlada.
+
+HydroEnergy y OtherRenewableEnergy quedan en valores intermedios (≈ 46 % y ≈ 45 %), con dispersión moderada.
+
+En conjunto, todos los CV rondan el 40–50 %, lo que sugiere que, aunque existen diferencias entre países y años, la variabilidad de cada tipo de energía renovable es del mismo orden de magnitud.**
+
+## Problema 5
+#### El rango intercuartil indica el ancho del intervalo que incluye el 50 % de los valores medios de la muestra ordenada. Por analogıa, el rango interdecil y el rango interpercentil indican la anchura del intervalo que incluye el 80 % y el 98 % respectivamente de los valores medios de la muestra ordenada. Con base a los datos de la variable TotalRenewableEnergy determinar:
+
+#### Rango intercuartil, RIQ = P75 − P25.
+#### Rango interdecil, RID = P90 − P10.
+#### Rango interpercentil, RIP = P99 − P1.
+#### Desviacion intercuartil, RIQ/2.
+#### Desviacion interdecil, RID/8.
+#### Desviacion interdecil, RIP/98
+
+
+```{r rango_intervals, echo=FALSE}
+# Carga de datos
+datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+
+# Variable de interés
+x <- datos$TotalRenewableEnergy
+
+# Cálculo de percentiles
+P1  <- quantile(x, probs = 0.01, na.rm = TRUE)
+P10 <- quantile(x, probs = 0.10, na.rm = TRUE)
+P25 <- quantile(x, probs = 0.25, na.rm = TRUE)
+P75 <- quantile(x, probs = 0.75, na.rm = TRUE)
+P90 <- quantile(x, probs = 0.90, na.rm = TRUE)
+P99 <- quantile(x, probs = 0.99, na.rm = TRUE)
+
+# Rangos
+RIQ <- P75 - P25      # Rango intercuartil
+RID <- P90 - P10      # Rango interdecil
+RIP <- P99 - P1       # Rango interpercentil
+
+# Desviaciones
+des_intercuartil     <- RIQ / 2
+des_interdecil       <- RID / 8
+des_interpercentil   <- RIP / 98
+
+# Tabla de resultados
+resultados <- data.frame(
+  Medida                   = c("RIQ (P75−P25)",
+                                "RID (P90−P10)",
+                                "RIP (P99−P1)",
+                                "Desv. intercuartil (RIQ/2)",
+                                "Desv. interdecil (RID/8)",
+                                "Desv. interpercentil (RIP/98)"),
+  Valor                     = c(RIQ, RID, RIP,
+                                des_intercuartil,
+                                des_interdecil,
+                                des_interpercentil)
+)
+
+print(resultados)
+```
+
+
+
+## Cierre
+```{r desviacion_solar, echo=FALSE}
+# Asumiendo ya cargado:
+# datos <- read.csv("global_renewable_energy_production.csv", header = TRUE)
+solar <- datos$SolarEnergy
+
+# Cálculo de la desviación estándar
+sd_solar <- sd(solar, na.rm = TRUE)
+cat("Desviación estándar de SolarEnergy:", round(sd_solar, 2), "\n")
+
+```
+
+

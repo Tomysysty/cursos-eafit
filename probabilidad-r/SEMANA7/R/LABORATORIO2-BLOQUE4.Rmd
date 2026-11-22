@@ -1,0 +1,104 @@
+---
+title: "SEMANA 7 LABORATORIO 2 - BLOQUE 4"
+author: "Sergio Tomas Rincon Jaimes"
+date: "2025-08-12"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+## Profesor Tallerista: Luz Estella Mesa
+
+# Problema 1
+#### Considere los siguientes datos del tiempo (en horas) de diferentes materiales registrados en una prueba de resistencia.
+
+```{r}
+# --- Problema 1: FDA, valor esperado y varianza ---
+
+# Datos (tiempo en horas)
+x <- c(500,520,510,530,550,
+       540,560,520,500,580,
+       590,600,610,620,630,
+       640,650,620,630,640,
+       620,610,600,590,580,
+       570,550,540,530,520)
+
+# Paso 1: Ordenar los datos
+datos_ordenados <- sort(x)
+
+# Paso 2: Calcular la frecuencia absoluta y acumulada
+tabla_freq <- as.data.frame(table(datos_ordenados))
+colnames(tabla_freq) <- c("Tiempo", "Frecuencia")
+tabla_freq$Tiempo <- as.numeric(as.character(tabla_freq$Tiempo))
+tabla_freq$Frecuencia_Acum <- cumsum(tabla_freq$Frecuencia)
+
+# Paso 3: Calcular la FDA (frecuencia acumulada / total de datos)
+n <- length(x)
+tabla_freq$FDA <- tabla_freq$Frecuencia_Acum / n
+
+# Mostrar la tabla completa con los pasos
+tabla_freq
+
+# Gráfica de la FDA (escalonada por ser empírica)
+plot(tabla_freq$Tiempo, tabla_freq$FDA,
+     type = "s", lwd = 2, col = "blue",
+     main = "Función de Distribución Acumulada (FDA) empírica",
+     xlab = "Tiempo (horas)",
+     ylab = "F(x)")
+
+# Calcular valor esperado (media) y varianza (muestral)
+media_x <- mean(x)
+var_x <- var(x)
+
+media_x
+var_x
+
+```
+
+
+
+# Problema 2
+####  Considere la siguiente funcíon de densidad de probabilidad que permite modelar el tiempo que transcurre hasta que ocurre un evento espećıfico con una tasa promedio de ocurrencia del evento de interes denotada por λ y con expresíon anaĺıtica
+
+```{r}
+# --- Problema 2: FDA de la distribución exponencial ---
+
+# Parámetro λ
+lambda <- 0.5
+
+# Paso 1: Definir la función de densidad f(x) = λ e^(-λx), x ≥ 0
+f <- function(x) lambda * exp(-lambda * x)
+
+# Paso 2: Definir la función de distribución acumulada (FDA)
+# Integramos f(x):  F(x) = 1 - e^(-λx),  x ≥ 0
+F <- function(x) 1 - exp(-lambda * x)
+
+# Paso 3: Generar valores de x y calcular FDA
+x_vals <- seq(0, 20, by = 0.1)   # valores de tiempo
+f_vals <- f(x_vals)
+F_vals <- F(x_vals)
+
+# Paso 4: Graficar densidad y FDA
+par(mfrow = c(1,2)) 
+
+# Densidad
+plot(x_vals, f_vals, type = "l", lwd = 2, col = "blue",
+     main = "Función de densidad\nExponencial(λ=0.5)",
+     xlab = "x", ylab = "f(x)")
+
+# Distribución acumulada
+plot(x_vals, F_vals, type = "l", lwd = 2, col = "red",
+     main = "Función de distribución acumulada (FDA)",
+     xlab = "x", ylab = "F(x)")
+
+par(mfrow = c(1,1)) 
+
+```
+

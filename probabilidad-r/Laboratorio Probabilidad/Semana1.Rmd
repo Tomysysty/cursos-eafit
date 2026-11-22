@@ -1,0 +1,41 @@
+---
+author: "Luz Estella Mesa"
+date: "2025-02-12"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+
+# PASOS DEL PROYECTO TITULO INICIAL
+
+## **ACTIVIDADES DEL PROYECTO (Semana 1)**
+
+### <span style="color:blue"><b>Pasos a seguir:</b></span>
+
+- Asigne a una variable llamada *u* el número 318.  
+- Imprima la variable *u* de modo que se muestre en el reporte.  
+- Asigne a una variable llamada **puntaje** el número 826 y agregue `;puntaje` al final de la línea de código. Explique qué efecto tuvo agregar `;puntaje`.  
+- Genere una secuencia de números del 12 al 82 utilizando la función `seq`. ¿Se utilizó `print` o `;` para imprimir la secuencia? ¿Por qué?  
+- Guarde en una variable llamada *v_1* una secuencia de números del 113 al 245. Imprima.  
+- Guarde en una variable llamada *v_2* una secuencia de números del 113 al 245 sin utilizar la función `seq`. Imprima. ¿Encuentra alguna diferencia con *v_1*?  
+- Modifique la variable *v_1* de modo que solo contenga la secuencia de números de 3 en 3. Asigne esta secuencia a la variable *v_3*. Imprima.  
+- Intente desarrollar el ejercicio anterior utilizando el código `113:245,by=3`. ¿Funciona?  
+- Genere un vector con números del 113 al 128 y guárdelo en una variable llamada *vector_1*. Utilice la función `matrix`. Imprima. ¿Cuál es la diferencia con *v_1*?  
+- Genere una matriz de cuatro filas y cuatro columnas con números del 113 al 128 y guárdela en una variable llamada *matriz_1*.  
+- Genere una variable llamada *t* con una secuencia de números del 0 al 20. Genere un vector con la función `t^3` y asígnele una variable llamada *vector_2*. Imprima.  
+- Haga una gráfica de puntos de la variable *t*.  
+- Haga una gráfica de línea del *vector_2*.  
+- Modifique la *matriz_1* cambiando la posición `[3, 2]` de la matriz por un `118`. Imprima nuevamente la *matriz_1*.  
+- Haga un gráfico de puntos de la columna 2 de la *matriz_1*.  
+
+-
+
+#CONTINUANDO

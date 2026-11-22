@@ -1,0 +1,127 @@
+---
+title: "Examen 3"
+author: "Sergio Tomas Rincon Jaimes"
+date: "2025-10-21"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+## Profesor Tallerista: Luz Estella Mesa
+  
+```{r}
+datos <- read.csv("C:/Users/Nitro V15/Documents/R/EXAMEN1/winequality-red.csv", header = TRUE, sep = ";", dec = ".", check.names = TRUE)
+```
+
+## Problema 1
+#### Compare los histogramas de frecuencias absolutas y frecuencias relativas de la variable más influyentes en la calidad del vino: “alcohol” según el score de calidad“quality” igual a 3 (valor más bajo) e igual a 8 (valor más alto). Comente las diferencias observadas para la variable alcohol en vinos con calidad “3” y vinos con calidad “8” .
+
+```{r}
+
+```
+
+
+
+## Conclusiones finales
+
+```{r finales_setup, include=FALSE}
+suppressPackageStartupMessages({
+  library(dplyr); library(tidyr)
+})
+
+
+df_alc <- datos %>%
+  filter(quality %in% c(3, 8)) %>%
+  mutate(calidad = factor(quality, levels = c(3, 8),
+                          labels = c("3 (baja)", "8 (alta)"))) %>%
+  select(calidad, alcohol) %>%
+  drop_na()
+
+res_alc <- df_alc %>%
+  group_by(calidad) %>%
+  summarise(
+    n      = n(),
+    media  = mean(alcohol),
+    mediana= median(alcohol),
+    sd     = sd(alcohol),
+    min    = min(alcohol),
+    max    = max(alcohol),
+    .groups = "drop"
+  )
+
+m3  <- res_alc$media  [res_alc$calidad == "3 (baja)"]
+m8  <- res_alc$media  [res_alc$calidad == "8 (alta)"]
+r3m <- res_alc$min    [res_alc$calidad == "3 (baja)"]
+r3M <- res_alc$max    [res_alc$calidad == "3 (baja)"]
+r8m <- res_alc$min    [res_alc$calidad == "8 (alta)"]
+r8M <- res_alc$max    [res_alc$calidad == "8 (alta)"]
+n3  <- res_alc$n      [res_alc$calidad == "3 (baja)"]
+n8  <- res_alc$n      [res_alc$calidad == "8 (alta)"]
+
+
+x <- datos$fixed.acidity; x <- x[!is.na(x)]
+n_x <- length(x)
+k_st <- ceiling(1 + log2(n_x))
+xmin <- min(x); xmax <- max(x)
+h_st <- (xmax - xmin) / k_st
+
+res_pm <- datos %>%
+  select(any_of(c("pH","alcohol"))) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "Valor") %>%
+  drop_na() %>%
+  group_by(Variable) %>%
+  summarise(Media = mean(Valor), Mediana = median(Valor), SD = sd(Valor), .groups="drop") %>%
+  mutate(
+    Dif = Media - Mediana,
+    Tol = 0.05 * SD,
+    Sesgo = case_when(
+      Dif >  Tol ~ "cola a la derecha (media > mediana)",
+      Dif < -Tol ~ "cola a la izquierda (media < mediana)",
+      TRUE       ~ "aprox. simétrica (media ≈ mediana)"
+    )
+  )
+
+pm_ph  <- res_pm %>% filter(Variable=="pH")
+ph_m   <- pm_ph$Media;   ph_md <- pm_ph$Mediana; ph_s <- pm_ph$Sesgo
+
+pm_alc <- res_pm %>% filter(Variable=="alcohol")
+alc_m  <- pm_alc$Media;  alc_md <- pm_alc$Mediana; alc_s <- pm_alc$Sesgo
+
+
+pS <- 0.20; pA <- 0.30; pSA <- 0.10
+p_union <- pS + pA - pSA
+p_none  <- 1 - p_union
+```
+
+```{r finales_texto, echo=FALSE, results='asis'}
+cat("**1) Alcohol y calidad (comparación de histogramas):**\n",
+    "- En **frecuencia absoluta**, las alturas difieren por el tamaño muestral (n = ", n3, " para calidad 3 vs n = ", n8, " para calidad 8), por lo que la comparación adecuada es con frecuencia relativa.\n",
+    "- En **frecuencia relativa** se observa un desplazamiento a la derecha para calidad 8, indicando valores de alcohol más altos.\n",
+    "- Media de alcohol: calidad 3 = ", sprintf("%.2f", m3), " % vol. vs calidad 8 = ", sprintf("%.2f", m8), " % vol.\n",
+    "- Rango observado ( % vol.): calidad 3 [", sprintf("%.2f", r3m), ", ", sprintf("%.2f", r3M), "] y calidad 8 [", sprintf("%.2f", r8m), ", ", sprintf("%.2f", r8M), "].\n",
+    "→ **Conclusión:** mayor graduación alcohólica se asocia con mejor calidad del vino.\n\n",
+
+    "**2) Sturges para fixed acidity:**\n",
+    "- Con n = ", n_x, " observaciones, la regla de Sturges sugiere k = ", k_st, "** clases y amplitud h ≈ ", sprintf('%.3f', h_st), ".\n",
+    "- Los límites construidos cubren [", sprintf('%.2f', xmin), ", ", sprintf('%.2f', xmax), "] con intervalos [a, b) y el último [a, b]. Esto permite una estratificación homogénea del rango para análisis descriptivo e histogramas comparables.\n\n",
+
+    "**3) Promedio vs mediana (forma de la distribución):**\n",
+    "- pH: media = ", sprintf('%.3f', ph_m), ", mediana = ", sprintf('%.3f', ph_md), " → distribución ", ph_s, ".\n",
+    "- **Alcohol:** media = ", sprintf('%.3f', alc_m), ", mediana = ", sprintf('%.3f', alc_md), " → distribución ", alc_s, ".\n",
+    "→ **Interpretación:** si la media supera a la mediana hay cola derecha; si es menor, cola izquierda; si son parecidas, la distribución es aprox. simétrica.\n\n",
+
+    "**4) Probabilidad de insatisfacción (salario o administración):**\n",
+    "Usando la regla de la unión:  P(S ∪ A) = P(S) + P(A) − P(S ∩ A) = 0.20 + 0.30 − 0.10 = ", sprintf('%.2f', p_union), " (", sprintf('%.0f', 100*p_union), "%).\n",
+    "El complemento (estar satisfecho con ambas) es ", sprintf('%.2f', p_none), " (", sprintf('%.0f', 100*p_none), "%).\n\n",
+
+    "**Conclusión Final: los análisis descriptivos muestran que el alcohol es un rasgo diferenciador entre vinos de alta y baja calidad; la acidez total puede resumirse de forma estable con Sturges para facilitar histogramas consistentes; y la comparación media–mediana confirma la forma de las distribuciones de pH y alcohol. En el ámbito de probabilidades, la empresa enfrenta un 40% de insatisfacción por salario y/o administración, por lo que acciones dirigidas a ambos frentes impactarían a la mayoría del grupo inconforme."
+)
+```
+

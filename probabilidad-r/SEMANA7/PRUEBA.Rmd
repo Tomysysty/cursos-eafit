@@ -1,0 +1,35 @@
+---
+title: "Laboratorio 2 — Probabilidad y Estadística (CM0244)"
+subtitle: "Tema: Probabilidad"
+author:
+  - "Estudiante: Sergio Tomás Rincón Jaimes"
+  - "Profesor tallerista: <ESCRIBIR NOMBRE AQUÍ>"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: flatly
+    df_print: paged
+---
+
+# Portada y datos
+
+**Curso:** CM0244 — Probabilidad y Estadística  
+**Tema del laboratorio:** Probabilidad (dados, teorema de la probabilidad total y de Bayes; binomial)  
+**Estudiante:** *Sergio Tomás Rincón Jaimes*  
+**Profesor tallerista:** *\<ESCRIBIR NOMBRE AQUÍ\>*  
+
+> **Instrucciones**: Este Notebook resuelve los 4 ejercicios solicitados, mostrando desarrollo teórico, simulaciones, tablas y gráficas. Se fijó semilla para reproducibilidad.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 8, fig.height = 4.5)
+set.seed(20250912)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(knitr)
+})
